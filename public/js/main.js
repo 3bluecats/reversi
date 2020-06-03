@@ -76,7 +76,7 @@ socket.on('join_room_response',function(payload){
 
     else{
         var buttonC = makeInviteButton(payload.socket_id);
-        $(".socket_"+payload.socket_id+"button").replaceWith(buttonC);
+        $(".socket_"+payload.socket_id+" button").replaceWith(buttonC);
         dom_elements.slideDown(1000);
     }
 
@@ -134,18 +134,22 @@ socket.on("invite_response",function(payload){
         alert(payload.message);
         return;
     }
-    var newNode=makeInviteButton();
+    var newNode=makeInvitedButton(payload.socket_id);
     $(".socket_"+payload.socket_id+" button").replaceWith(newNode);
 });   
+
 
 socket.on("invited",function(payload){
     if (payload.result=="fail"){
         alert(payload.message);
         return;
     }
-    var newNode=makePlayButton();
-    $(".socket_"+payload.socket_id+" button ").replaceWith(newNode);
-});   
+    
+    var newNode=makePlayButton(payload.socket_id);
+    $(".socket_"+payload.socket_id+" button").replaceWith(newNode);
+
+});
+   
 
 socket.on("send_message_response",function(payload){
     if(payload.result=="fail"){
