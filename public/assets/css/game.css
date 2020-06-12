@@ -1,3 +1,6 @@
+body {
+    background-image: url('../images/green.png');
+}
 table#game_board{
     margin: auto;
     border-style:solid;
