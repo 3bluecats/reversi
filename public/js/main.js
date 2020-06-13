@@ -300,6 +300,7 @@ return (newNode);
     ];
 
     var my_color = ' ';
+    var interval_timer;
 
     socket.on('game_update', function(payload){
       console.log('*** Client Log Message: \'game_update\'\n\tpayload:'+JSON.stringify(payload));
@@ -331,7 +332,22 @@ return (newNode);
       }
 
       $('#my_color').html('<h3 id="my_color"> I am '+my_color+'</h3>');
-      $('#my_color').append('<h4>It is '+payload.game.whose_turn+'\'s turn</h4>');
+      $('#my_color').append('<h4>It is '+payload.game.whose_turn+'\'s turn. Elapsed time <span id="elapsed"></span></h4>');
+      clearInterval(interval_timer);
+      interval_timer = setInterval(function(last_time){
+          return function(){
+            var d = new Date();
+            var elapsedmilli = d.getTime() - last_time;
+            var minutes = Math.floor(elapsedmilli / (60*1000));
+            var seconds = Math.floor((elapsedmilli % (60 *1000))/1000);
+            if(seconds < 10){
+              $('#elapsed').html(minutes+' :0'+seconds)
+            } else {
+              $('#elapsed').html(minutes+' :'+seconds)
+            }
+            // updating the UI
+          }}(payload.game.last_move_time)
+      ,1000);
         /*Animate changes to the board*/
          var blacksum = 0;
          var whitesum = 0;
@@ -376,10 +392,13 @@ return (newNode);
             else{
               $('#'+row+'_'+column).html('<img src="assets/images/error.gif" alt="error"/>');
             }
+        }
+        /*Interactivity */
+        $('#'+row+'_'+column).off('click');
+        $('#'+row+'_'+column).removeClass('hovered_over');
 
-            /*Interactivity */
-            $('#'+row+'_'+column).off('click');
-            if(board[row][column] == ' '){
+        if(payload.game.whose_turn === my_color){
+          if(payload.game.legal_moves[row][column] === my_color.substr(0,1)){
               $('#'+row+'_'+column).addClass('hovered_over');
               $('#'+row+'_'+column).click(function(r,c){
                 return function() {
@@ -391,9 +410,6 @@ return (newNode);
                   socket.emit('play_token',payload);
                 };
               }(row,column));
-            }
-            else{
-              $('#'+row+'_'+column).removeClass('hovered_over');
             }
           }
         }
